@@ -2,4 +2,6 @@
 __pycache__/
 *.pyc
 olist.sqlite
+gymnase.sqlite
 *.sqlite
+*.xlsx
