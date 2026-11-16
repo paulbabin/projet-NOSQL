@@ -5,3 +5,4 @@ olist.sqlite
 gymnase.sqlite
 *.sqlite
 *.xlsx
+*.csv
