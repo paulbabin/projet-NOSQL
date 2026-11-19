@@ -1,6 +1,7 @@
 import pandas as pd
 import pymongo
 import sqlite3
+from uuid import uuid4
 
 # 1. Connexion à la base SQLite
 conn = sqlite3.connect("olist.sqlite")
@@ -9,7 +10,7 @@ conn = sqlite3.connect("olist.sqlite")
 client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
 db = client["SAE"]  # Crée la base 'SAE' dans MongoDB
 
-print("Début de la migration vers les 4 collections...")
+print("Début de la migration vers les 5 collections...")
 
 # ==========================================
 # COLLECTION 1 : products (avec traduction)
@@ -98,6 +99,39 @@ for _, row in orders_df.iterrows():
 db.orders.drop()
 db.orders.insert_many(orders_list)
 
+if "geolocation" not in db.list_collection_names():
+    print("Migration de la collection 'geolocation'...")
+    conn.execute("BEGIN")
+    expected = conn.execute("SELECT COUNT(*) FROM geolocation").fetchone()[0]
+    if not expected:
+        raise RuntimeError("La table SQLite geolocation est vide.")
+
+    rows = conn.execute(
+            "SELECT geolocation_zip_code_prefix, geolocation_lat, geolocation_lng, "
+            "geolocation_city, geolocation_state FROM geolocation"
+    )
+    columns = [column[0] for column in rows.description]
+    staging = db.create_collection("geolocation_import_" + uuid4().hex)
+    published = False
+    try:
+        inserted = 0
+        while True:
+            batch = rows.fetchmany(5000)
+            if not batch:
+                break
+            staging.insert_many([dict(zip(columns, row)) for row in batch])
+            inserted += len(batch)
+
+        if inserted != expected or staging.count_documents({}) != expected:
+            raise RuntimeError("Le nombre de documents importés ne correspond pas à SQLite.")
+        staging.rename("geolocation")
+        published = True
+    finally:
+        if not published:
+            staging.drop()
+else:
+    print("Collection 'geolocation' déjà présente, import ignoré.")
+
 # Fermeture de la connexion SQLite
 conn.close()
 
@@ -106,3 +140,4 @@ print(f"Nombre de produits insérés : {db.products.count_documents({})}")
 print(f"Nombre de vendeurs insérés : {db.sellers.count_documents({})}")
 print(f"Nombre de clients insérés : {db.customers.count_documents({})}")
 print(f"Nombre de commandes insérées : {db.orders.count_documents({})}")
+print(f"Nombre de géolocalisations : {db.geolocation.count_documents({})}")
