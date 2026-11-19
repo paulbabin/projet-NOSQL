@@ -33,7 +33,7 @@ def run_query_a(db):
     result = pd.DataFrame(rows)
     print("\n--- Requête A : évolution mensuelle ---")
     print(result)
-    result.to_excel("output.xlsx", index=False)
+    #result.to_excel("output.xlsx", index=False)
     return result
 
 
@@ -76,7 +76,7 @@ def run_query_b(db):
     result = pd.DataFrame(rows)
     print("\n--- Requête B : panier moyen par état ---")
     print(result.head(10))
-    result.to_excel("panier_moyen_par_etat.xlsx", index=False)
+    #result.to_excel("panier_moyen_par_etat.xlsx", index=False)
     return result
 
 
@@ -156,7 +156,7 @@ def run_query_c(db):
 
     print("\n--- Requête C : top 10 des catégories ---")
     print(result)
-    result.to_excel("top_10_categories.xlsx", index=False)
+    #result.to_excel("top_10_categories.xlsx", index=False)
     return result
 
 
@@ -293,7 +293,7 @@ def run_query_d(db):
     result = pd.DataFrame(list(db.orders.aggregate(pipeline)))
     print("\n--- Requête D : délais et retards par état ---")
     print(result)
-    result.to_excel("delai_moyen_taux_retard.xlsx", index=False)
+    # result.to_excel("delai_moyen_taux_retard.xlsx", index=False)
     return result
 
 
@@ -334,7 +334,7 @@ def run_query_e(db):
     )
     print("\n--- Requête E : top 10 des vendeurs ---")
     print(result)
-    result.to_excel("top_10_vendeurs.xlsx", index=False)
+    # result.to_excel("top_10_vendeurs.xlsx", index=False)
     return result
 
 
@@ -409,7 +409,7 @@ def run_query_f(db):
     )
     print("\n--- Requête F : vendeurs à surveiller ---")
     print(result)
-    result.to_excel("vendeurs_a_surveiller.xlsx", index=False)
+    # result.to_excel("vendeurs_a_surveiller.xlsx", index=False)
     return result
 
 
@@ -468,11 +468,11 @@ def run_query_g(db):
     ]
     print("\n--- Requête G : taux de livraison à l'heure ---")
     print(result)
-    result.to_excel("taux_livraison_heure.xlsx", index=False)
+    # result.to_excel("taux_livraison_heure.xlsx", index=False)
     return result
 
 
-def run_query_h(db):
+#def run_query_h(db):
     """Clients, vendeurs et coordonnées moyennes par état."""
     if "geolocation" not in db.list_collection_names():
         raise RuntimeError(
@@ -550,7 +550,7 @@ def run_query_h(db):
     ].sort_values("state")
     print("\n--- Requête H : clients et vendeurs par état ---")
     print(result)
-    result.to_excel("clients_vendeurs_par_etat.xlsx", index=False)
+    # result.to_excel("clients_vendeurs_par_etat.xlsx", index=False)
     return result
 
 
@@ -631,7 +631,7 @@ def run_query_i1(db):
     result = pd.DataFrame(list(db.orders.aggregate(pipeline)))
     print("\n--- Requête I1 : avis par tranche de retard ---")
     print(result)
-    result.to_excel("avis_par_tranche_retard.xlsx", index=False)
+    #result.to_excel("avis_par_tranche_retard.xlsx", index=False)
     return result
 
 
@@ -699,7 +699,7 @@ def run_query_i2(db):
     ).reset_index(drop=True)
     print("\n--- Requête I2 : corrélation retard / note ---")
     print(result)
-    result.to_excel("correlation_retard_note.xlsx", index=False)
+    #result.to_excel("correlation_retard_note.xlsx", index=False)
     return result
 
 
@@ -780,7 +780,7 @@ def run_query_j(db):
     ].sort_values("pct_valeur", ascending=False).reset_index(drop=True)
     print("\n--- Requête J : répartition des moyens de paiement ---")
     print(result)
-    result.to_excel("repartition_moyens_paiement.xlsx", index=False)
+    #result.to_excel("repartition_moyens_paiement.xlsx", index=False)
     return result
 
 
@@ -832,7 +832,7 @@ def run_query_k(db):
     )
     print("\n--- Requête K : vendeurs aux délais de traitement les plus longs ---")
     print(result)
-    result.to_excel("delai_traitement_vendeurs.xlsx", index=False)
+    #result.to_excel("delai_traitement_vendeurs.xlsx", index=False)
     return result
 
 
@@ -906,7 +906,7 @@ def run_query_l(db):
     ]
     print("\n--- Requête L : clients récurrents par état ---")
     print(result)
-    result.to_excel("clients_recurrents_par_etat.xlsx", index=False)
+    #result.to_excel("clients_recurrents_par_etat.xlsx", index=False)
     return result
 
 
@@ -992,7 +992,7 @@ def run_query_m(db):
     result = pd.DataFrame(list(db.orders.aggregate(pipeline)))
     print("\n--- Requête M : rapidité de livraison par état ---")
     print(result)
-    result.to_excel("rapidite_livraison_par_etat.xlsx", index=False)
+    #result.to_excel("rapidite_livraison_par_etat.xlsx", index=False)
     return result
 
 
@@ -1060,7 +1060,7 @@ def run_query_n(db):
     ]
     print("\n--- Requête N : segmentation des clients ---")
     print(result)
-    result.to_excel("segmentation_clients.xlsx", index=False)
+    #result.to_excel("segmentation_clients.xlsx", index=False)
     return result
 
 
@@ -1074,7 +1074,7 @@ def main():
         run_query_e(db)
         run_query_f(db)
         run_query_g(db)
-        run_query_h(db)
+        #run_query_h(db)
         run_query_i1(db)
         run_query_i2(db)
         run_query_j(db)
@@ -1085,4 +1085,29 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+  client = MongoClient("mongodb://127.0.0.1:27017/")
+  db = client["SAE"]
+
+  resultats_mongo = {
+      "a": run_query_a(db),
+      "b": run_query_b(db),
+      "c": run_query_c(db),
+      "d": run_query_d(db),
+      "e": run_query_e(db),
+      "f": run_query_f(db),
+      "g": run_query_g(db),
+      #"h": run_query_h(db),
+      "i1": run_query_i1(db),
+      "i2": run_query_i2(db),
+      "j": run_query_j(db),
+      "k": run_query_k(db),
+      "l": run_query_l(db),
+      "m": run_query_m(db),
+      "n": run_query_n(db), 
+  }
+
+  with pd.ExcelWriter("resultats_mongodb.xlsx", engine="openpyxl") as writer:
+    for nom_feuille, df in resultats_mongo.items():
+      df.to_excel(writer, sheet_name=nom_feuille[:31], index=False)
+
+  client.close()

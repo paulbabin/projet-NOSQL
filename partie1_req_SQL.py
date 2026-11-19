@@ -25,12 +25,12 @@ GROUP BY mois
 ORDER BY mois ASC;
 """
 df_a = pd.read_sql_query(req_a, conn)
-df_a.to_csv("requete_a.csv", index=False)
+#df_a.to_csv("requete_a.csv", index=False)
 print("\n--- Requete a ---")
 print(df_a)
 print("Commentaire a : Le CA et le nombre de commandes livrees augmentent fortement en 2017 avec un pic en novembre (1,15M R$ pour le Black Friday) avant de se stabiliser autour de 1M R$ par mois en 2018.")
 
-panier_moyen = """
+req_b = """
 SELECT 
     c.customer_state,
     AVG(op_sum.total_payment) AS panier_moyen
@@ -44,10 +44,10 @@ JOIN (
 GROUP BY c.customer_state
 ORDER BY panier_moyen DESC;
 """
-df_panier_moyen = pd.read_sql_query(panier_moyen, conn)
-df_panier_moyen.to_csv("panier_moyen.csv", index=False)
+df_b = pd.read_sql_query(req_b, conn)
+#df_b.to_csv("req_b.csv", index=False)
 print("\n--- Panier moyen ---")
-print(df_panier_moyen)
+print(df_b)
 
 #%% Requete c - Directeur commercial
 # Question : Top 10 des categories de produits (nom en anglais) par chiffre d'affaires, avec leur part dans le chiffre d'affaires total
@@ -66,12 +66,12 @@ ORDER BY chiffre_affaires DESC
 LIMIT 10;
 """
 df_c = pd.read_sql_query(req_c, conn)
-df_c.to_csv("requete_c.csv", index=False)
+#df_c.to_csv("requete_c.csv", index=False)
 print("\n--- Requete c ---")
 print(df_c)
 print("Commentaire c : Les ventes sont concentrees sur quelques categories phares puisque le top 5 represente pres de 40 % du CA total.")
 
-delai_moyen_taux_retard = """
+req_d = """
 SELECT 
     c.customer_state,
     ROUND(AVG(julianday(o.order_delivered_customer_date) - julianday(o.order_purchase_timestamp)), 2) AS delai_moyen_jours,
@@ -84,10 +84,10 @@ WHERE o.order_status = 'delivered'
 GROUP BY c.customer_state
 ORDER BY delai_moyen_jours DESC;
 """
-df_delai_moyen_taux_retard = pd.read_sql_query(delai_moyen_taux_retard, conn)
-df_delai_moyen_taux_retard.to_csv("delai_moyen_taux_retard.csv", index=False)
+df_d = pd.read_sql_query(req_d, conn)
+#df_d.to_csv("req_d.csv", index=False)
 print("\n--- Délai moyen et taux de retard ---")
-print(df_delai_moyen_taux_retard)
+print(df_d)
 
 #%% Requete e - Responsable marketplace
 # Question : Top 10 des vendeurs par chiffre d'affaires, avec nombre de commandes et note moyenne
@@ -106,12 +106,12 @@ ORDER BY chiffre_affaires DESC
 LIMIT 10;
 """
 df_e = pd.read_sql_query(req_e, conn)
-df_e.to_csv("requete_e.csv", index=False)
+#df_e.to_csv("requete_e.csv", index=False)
 print("\n--- Requete e ---")
 print(df_e)
 print("Commentaire e : Les 10 plus gros vendeurs depassent chacun 160 000 R$ de CA avec de bonnes notes (> 4/5), sauf le 2e vendeur (7c67e...) qui a une note moyenne faible de 3,35 malgre 241 374 R$ de ventes.")
 
-liste_vendeur = """SELECT 
+req_f = """SELECT 
     s.seller_id,
     s.seller_city,
     s.seller_state,
@@ -138,8 +138,8 @@ HAVING COUNT(oi.order_item_id) >= 30
    AND (SUM(CASE WHEN o.order_delivered_customer_date > o.order_estimated_delivery_date THEN 1.0 ELSE 0.0 END) * 100.0) / COUNT(o.order_id) < 5.0
 ORDER BY s.seller_state, s.seller_city;"""
 
-df_f = pd.read_sql_query(liste_vendeur, conn)
-df_f.to_csv("requete_f.csv", index=False)
+df_f = pd.read_sql_query(req_f, conn)
+#df_f.to_csv("req_f.csv", index=False)
 
 
 #%% Requete g - Directeur logistique
@@ -165,12 +165,12 @@ WHERE order_status = 'delivered'
 GROUP BY periode;
 """
 df_g = pd.read_sql_query(req_g, conn)
-df_g.to_csv("requete_g.csv", index=False)
+#df_g.to_csv("requete_g.csv", index=False)
 print("\n--- Requete g ---")
 print(df_g)
 print("Commentaire g : Le taux de livraison a l'heure est bon au global (91,9 %), mais chute fortement lors des pics d'activite comme en novembre 2017 (85,7 %) et en fevrier-mars 2018 (78,6 %).")
 
-clients_vendeurs_par_etat = """
+req_h = """
 SELECT 
     t.state,
     (SELECT COUNT(c.customer_id) FROM customers c WHERE c.customer_state = t.state) AS nb_clients,
@@ -189,11 +189,10 @@ FROM (
 ) t
 ORDER BY t.state;
 """
-
-df_clients_vendeurs = pd.read_sql_query(clients_vendeurs_par_etat, conn)
-df_clients_vendeurs.to_csv("requete_clients_vendeurs.csv", index=False)
+df_h = pd.read_sql_query(req_h, conn)
+#df_h.to_csv("req_h.csv", index=False)
 print("\n--- Clients et vendeurs par état ---")
-print(df_clients_vendeurs)
+print(df_h)
 
 
 #%% Requete i - Responsable satisfaction
@@ -218,7 +217,7 @@ GROUP BY tranche_retard
 ORDER BY tranche_retard ASC;
 """
 df_i1 = pd.read_sql_query(req_i1, conn)
-df_i1.to_csv("requete_i_tranches.csv", index=False)
+#df_i1.to_csv("requete_i_tranches.csv", index=False)
 print("\n--- Requete i (Tranches de retard) ---")
 print(df_i1)
 
@@ -239,13 +238,13 @@ df_i2_commandes = pd.read_sql_query(req_i2, conn)
 df_i2 = df_i2_commandes.groupby("etat")["jours_retard"].corr(df_i2_commandes["note_moyenne"]).reset_index(name="correlation_retard_note")
 df_i2["correlation_retard_note"] = df_i2["correlation_retard_note"].round(3)
 df_i2 = df_i2.sort_values(by="correlation_retard_note", ascending=True)
-df_i2.to_csv("requete_i_correlation.csv", index=False)
+#df_i2.to_csv("requete_i_correlation.csv", index=False)
 print("\n--- Requete i (Correlation par Etat) ---")
 print(df_i2)
 print("Commentaire i : La note moyenne chute fortement des que le retard depasse 3 jours (de 4,29 a l'heure a 2,32 entre 4 et 7 jours, puis 1,73 au-dela), avec une correlation negative marquee dans presque tous les Etats.")
 
 
-repartition_moyenne_paiement = """
+req_j = """
 SELECT 
     payment_type AS moyen_paiement,
     COUNT(DISTINCT order_id) AS nb_commandes,
@@ -258,10 +257,10 @@ FROM order_payments
 GROUP BY payment_type
 ORDER BY pct_valeur DESC;
 """
-df_repartition = pd.read_sql_query(repartition_moyenne_paiement, conn)
-df_repartition.to_csv("requete_repartition_paiement.csv", index=False)
-print("\n--- Repartition des moyens de paiement ---")
-print(df_repartition)
+df_j = pd.read_sql_query(req_j, conn)
+#df_j.to_csv("req_j.csv", index=False)
+print("\n--- repartition_moyenne_paiement  ---")
+print(df_j)
 
 #%% Requete k - Responsable vendeurs
 # Question : Delai moyen de traitement par vendeur (achat -> remise au transporteur) pour les vendeurs ayant au moins 30 commandes : les 10 plus lents
@@ -281,13 +280,13 @@ ORDER BY delai_moyen_traitement_jours DESC
 LIMIT 10;
 """
 df_k = pd.read_sql_query(req_k, conn)
-df_k.to_csv("requete_k.csv", index=False)
+#df_k.to_csv("requete_k.csv", index=False)
 print("\n--- Requete k ---")
 print(df_k)
 print("Commentaire k : Les 10 vendeurs reguliers les plus lents mettent entre 11,4 et 18,1 jours rien que pour remettre le colis au transporteur, ce qui penalise directement les delais de livraison.")
 
 
-taux_clients_recurrents = """
+req_l = """
 SELECT 
     c.customer_state AS state,
     COUNT(DISTINCT c.customer_unique_id) AS total_clients,
@@ -306,10 +305,10 @@ WHERE c.customer_state IS NOT NULL
 GROUP BY c.customer_state
 ORDER BY taux_recurence_pct DESC;
 """
-df_taux = pd.read_sql_query(taux_clients_recurrents, conn)
-df_taux.to_csv("requete_taux_clients_recurrents.csv", index=False)
+df_l = pd.read_sql_query(req_l, conn)
+#df_l.to_csv("req_l.csv", index=False)
 print("\n--- Taux de clients récurrents par état ---")
-print(df_taux)
+print(df_l)
 
 #%% Requete m - Directeur logistique
 # Question : Requete CASE WHEN : classer chaque commande livree selon la rapidite de livraison (< 8j, 8 a 15j, > 15j), puis donner par Etat le nombre de commandes et la note moyenne de chaque classe
@@ -334,12 +333,12 @@ GROUP BY c.customer_state, rapidite_livraison
 ORDER BY c.customer_state ASC, rapidite_livraison ASC;
 """
 df_m = pd.read_sql_query(req_m, conn)
-df_m.to_csv("requete_m.csv", index=False)
+#df_m.to_csv("requete_m.csv", index=False)
 print("\n--- Requete m ---")
 print(df_m)
 print("Commentaire m : Les livraisons rapides (< 8 jours) obtiennent de tres bonnes notes (> 4,3/5), mais dans la plupart des Etats hors Sao Paulo les livraisons lentes (> 15 jours) sont majoritaires et tirent la satisfaction vers le bas.")
 
-segmentation = """
+req_n = """
 WITH depenses_clients AS (
     SELECT 
         c.customer_unique_id,
@@ -364,11 +363,42 @@ FROM depenses_clients
 GROUP BY segment_client
 ORDER BY segment_client;
 """
-
-df_segmentation = pd.read_sql_query(segmentation, conn)
-df_segmentation.to_csv("requete_segmentation_clients.csv", index=False)
+df_n = pd.read_sql_query(req_n, conn)
+#df_n.to_csv("req_n.csv", index=False)
 print("\n--- Segmentation des clients ---")
-print(df_segmentation)
+print(df_n)
+
+""""""
+
+
+# 1. Regroupe tes DataFrames existants dans un dictionnaire : {"nom_de_feuille": dataframe}
+resultats = {
+    "a": df_a,
+    "b": df_b,
+    "c": df_c,
+    "d": df_d,
+    "e": df_e,
+    "f": df_f,
+    "g": df_g,
+    "h": df_h,
+    "i1": df_i1,
+    "i2": df_i2,
+    "j": df_j,
+    "k": df_k,
+    "l": df_l,
+    "m": df_m,
+    "n": df_n,
+}
+
+# 2. Écrit toutes les feuilles dans un seul fichier .xlsx
+nom_fichier = "resultats_sql.xlsx"  
+
+with pd.ExcelWriter(nom_fichier, engine="openpyxl") as writer:
+  for sheet_name, df in resultats.items():
+    # Sécurité : s'assure que le nom de feuille fait max 31 caractères (limite Excel)
+    df.to_excel(writer, sheet_name=str(sheet_name)[:31], index=False)
+
+print(f"✅ Fichier {nom_fichier} généré avec {len(resultats)} feuilles.")
 
 # Fermeture de la connexion
 conn.close()
