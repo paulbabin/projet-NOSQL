@@ -99,6 +99,10 @@ for _, row in orders_df.iterrows():
 db.orders.drop()
 db.orders.insert_many(orders_list)
 
+# ==========================================
+# COLLECTION 5 : geolocation
+# ==========================================
+
 if "geolocation" not in db.list_collection_names():
     print("Migration de la collection 'geolocation'...")
     conn.execute("BEGIN")

@@ -472,18 +472,16 @@ def run_query_g(db):
     return result
 
 
-#def run_query_h(db):
+def run_query_h(db):
     """Clients, vendeurs et coordonnées moyennes par état."""
     if "geolocation" not in db.list_collection_names():
-        raise RuntimeError(
-            "La collection geolocation est absente. Relancez la migration mise à jour."
-        )
+        raise RuntimeError("La collection geolocation est absente de MongoDB.")
 
     customers = list(
         db.customers.aggregate(
             [
                 {"$match": {"customer_state": {"$type": "string"}}},
-                {"$group": {"_id": "$customer_state", "nb_clients": {"$sum": 1}}},
+                {"$group": {"_id": "$customer_state", "nb_clients": {"$sum": {"$cond": [{"$ne": [{"$ifNull": ["$customer_id", None]}, None]}, 1, 0]}}}},
             ]
         )
     )
@@ -491,26 +489,28 @@ def run_query_g(db):
         db.sellers.aggregate(
             [
                 {"$match": {"seller_state": {"$type": "string"}}},
-                {"$group": {"_id": "$seller_state", "nb_vendeurs": {"$sum": 1}}},
+                {"$group": {"_id": "$seller_state", "nb_vendeurs": {"$sum": {"$cond": [{"$ne": [{"$ifNull": ["$seller_id", None]}, None]}, 1, 0]}}}},
             ]
         )
     )
     geolocation = list(
-        db.geolocation.find(
-            {},
-            {
-                "_id": 0,
-                "geolocation_state": 1,
-                "lat_moyenne": 1,
-                "lng_moyenne": 1,
-            },
+        db.geolocation.aggregate(
+            [
+                {"$match": {"geolocation_state": {"$ne": None}}},
+                {
+                    "$group": {
+                        "_id": "$geolocation_state",
+                        "lat_moyenne": {"$avg": "$geolocation_lat"},
+                        "lng_moyenne": {"$avg": "$geolocation_lng"},
+                    }
+                },
+                {"$project": {"_id": 0, "geolocation_state": "$_id", "lat_moyenne": 1, "lng_moyenne": 1}},
+            ]
         )
     )
-    if not geolocation:
-        raise ValueError("La collection geolocation ne contient aucune donnée.")
 
-    customer_df = pd.DataFrame(customers).rename(columns={"_id": "state"})
-    seller_df = pd.DataFrame(sellers).rename(columns={"_id": "state"})
+    customer_df = pd.DataFrame(customers, columns=["_id", "nb_clients"]).rename(columns={"_id": "state"})
+    seller_df = pd.DataFrame(sellers, columns=["_id", "nb_vendeurs"]).rename(columns={"_id": "state"})
     state_df = pd.DataFrame(
         {
             "state": sorted(
@@ -518,9 +518,12 @@ def run_query_g(db):
                 | set(seller_df["state"])
                 | {row["geolocation_state"] for row in geolocation}
             )
-        }
+        },
+        dtype=object,
     )
-    geo_df = pd.DataFrame(geolocation).rename(
+    geo_df = pd.DataFrame(
+        geolocation, columns=["geolocation_state", "lat_moyenne", "lng_moyenne"]
+    ).rename(
         columns={"geolocation_state": "state"}
     )
     result = (
@@ -530,13 +533,8 @@ def run_query_g(db):
     )
     result["nb_clients"] = result["nb_clients"].fillna(0).astype(int)
     result["nb_vendeurs"] = result["nb_vendeurs"].fillna(0).astype(int)
-    result["ratio_clients_vendeur"] = result.apply(
-        lambda row: (
-            row["nb_clients"] / row["nb_vendeurs"]
-            if row["nb_vendeurs"]
-            else None
-        ),
-        axis=1,
+    result["ratio_clients_vendeur"] = result["nb_clients"].div(
+        result["nb_vendeurs"].replace(0, float("nan"))
     )
     result = result[
         [
@@ -550,9 +548,8 @@ def run_query_g(db):
     ].sort_values("state")
     print("\n--- Requête H : clients et vendeurs par état ---")
     print(result)
-    # result.to_excel("clients_vendeurs_par_etat.xlsx", index=False)
+    result.to_excel("clients_vendeurs_par_etat.xlsx", index=False)
     return result
-
 
 def run_query_i1(db):
     """Notes moyennes par tranche de retard de livraison."""
@@ -1074,7 +1071,7 @@ def main():
         run_query_e(db)
         run_query_f(db)
         run_query_g(db)
-        #run_query_h(db)
+        run_query_h(db)
         run_query_i1(db)
         run_query_i2(db)
         run_query_j(db)
@@ -1096,7 +1093,7 @@ if __name__ == "__main__":
       "e": run_query_e(db),
       "f": run_query_f(db),
       "g": run_query_g(db),
-      #"h": run_query_h(db),
+      "h": run_query_h(db),
       "i1": run_query_i1(db),
       "i2": run_query_i2(db),
       "j": run_query_j(db),
