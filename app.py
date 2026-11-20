@@ -230,9 +230,16 @@ with tab1:
       "`partie1.py`, `partie2.py`, `partie3.py` et `comparaison.py`."
   )
 
+  if "logs_comparaison" not in st.session_state:
+    st.session_state["logs_comparaison"] = None
+
   if st.button("🚀 Lancer tout le pipeline (Parties 1, 2, 3 + Comparaison)"):
-    scripts = ["partie1_req_SQL.py", "partie2.py", "partie3_req_mongodb.py", "comparaison.py"]
-    logs_comparaison = ""
+    scripts = [
+        "partie1_req_SQL.py",
+        "partie2.py",
+        "partie3_req_mongodb.py",
+        "comparaison.py",
+    ]
     succes_global = True
 
     with st.spinner(
@@ -254,14 +261,15 @@ with tab1:
           succes_global = False
           break
         elif script == "comparaison.py":
-          logs_comparaison = res.stdout
+          st.session_state["logs_comparaison"] = res.stdout
 
     if succes_global:
       st.success("✅ Pipeline terminé avec succès !")
       st.cache_data.clear()  # Rafraîchit les caches avec les nouveaux Excel/Mongo
 
-      st.subheader("📋 Résultat du script `comparaison.py`")
-      st.code(logs_comparaison)
+  if st.session_state["logs_comparaison"]:
+    st.subheader("📋 Résultat du script `comparaison.py`")
+    st.code(st.session_state["logs_comparaison"])
 
   st.divider()
   st.subheader("👀 Aperçu visuel côte à côte des fichiers Excel générés")
@@ -290,8 +298,6 @@ with tab1:
         "Les fichiers `resultats_sql.xlsx` et `resultats_mongodb.xlsx` ne sont"
         " pas encore générés. Lance le pipeline ci-dessus."
     )
-
-
 # ==============================================================================
 # ONGLET 2 : GRAPHIQUES PANDAS / MATPLOTLIB (À PARTIR DES EXCEL)
 # ==============================================================================
@@ -487,9 +493,13 @@ with tab3:
     )
     col_ind = indicateurs_map[choix_ind]
 
+
     geojson_br = get_brazil_geojson()
     m_choro = folium.Map(
-        location=[-14.2350, -51.9253], zoom_start=4, tiles="cartodbpositron"
+        location=[-14.2350, -51.9253],
+        zoom_start=4,
+        tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attr="© OpenStreetMap contributors",
     )
 
     folium.Choropleth(
@@ -571,7 +581,10 @@ with tab3:
     ].dropna(subset=["seller_lat", "seller_lng"])
 
     m_sellers = folium.Map(
-        location=[-15.7801, -47.9292], zoom_start=4, tiles="cartodbpositron"
+    location=[-15.7801, -47.9292],
+    zoom_start=4,
+    tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attr="© OpenStreetMap contributors",
     )
 
     for _, v in vendeurs_stats.head(400).iterrows():
@@ -656,7 +669,8 @@ with tab3:
         m_zone = folium.Map(
             location=[info_v["seller_lat"], info_v["seller_lng"]],
             zoom_start=4,
-            tiles="cartodbpositron",
+            tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            attr="© OpenStreetMap contributors",
         )
         # Position du vendeur
         folium.Marker(
