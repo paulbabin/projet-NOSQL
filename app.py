@@ -50,7 +50,7 @@ def haversine_km(lat1, lon1, lat2, lon2):
 def load_mongo_operational_data():
   """Charge les données nécessaires aux graphiques complémentaires et cartes MongoDB."""
   client = MongoClient("mongodb://127.0.0.1:27017/")
-  db = client["SAE"]
+  db = client["olist"]
 
   # 1. Référentiels
   sellers = pd.DataFrame(list(db.sellers.find({}, {"_id": 0})))

@@ -31,8 +31,8 @@ def run_query_a(db):
 
     rows = list(db.orders.aggregate(pipeline))
     result = pd.DataFrame(rows)
-    print("\n--- Requête A : évolution mensuelle ---")
-    print(result)
+    #print("\n--- Requête A : évolution mensuelle ---")
+    #print(result)
     #result.to_excel("output.xlsx", index=False)
     return result
 
@@ -74,8 +74,8 @@ def run_query_b(db):
 
     rows = list(db.orders.aggregate(pipeline))
     result = pd.DataFrame(rows)
-    print("\n--- Requête B : panier moyen par état ---")
-    print(result.head(10))
+    #print("\n--- Requête B : panier moyen par état ---")
+    #print(result.head(10))
     #result.to_excel("panier_moyen_par_etat.xlsx", index=False)
     return result
 
@@ -154,8 +154,8 @@ def run_query_c(db):
         .reset_index(drop=True)
     )
 
-    print("\n--- Requête C : top 10 des catégories ---")
-    print(result)
+    #print("\n--- Requête C : top 10 des catégories ---")
+    #print(result)
     #result.to_excel("top_10_categories.xlsx", index=False)
     return result
 
@@ -291,8 +291,8 @@ def run_query_d(db):
     ]
 
     result = pd.DataFrame(list(db.orders.aggregate(pipeline)))
-    print("\n--- Requête D : délais et retards par état ---")
-    print(result)
+    #print("\n--- Requête D : délais et retards par état ---")
+    #print(result)
     # result.to_excel("delai_moyen_taux_retard.xlsx", index=False)
     return result
 
@@ -332,8 +332,8 @@ def run_query_e(db):
         .head(10)[["seller_id", "chiffre_affaires", "nb_commandes", "note_moyenne"]]
         .reset_index(drop=True)
     )
-    print("\n--- Requête E : top 10 des vendeurs ---")
-    print(result)
+    #print("\n--- Requête E : top 10 des vendeurs ---")
+    #print(result)
     # result.to_excel("top_10_vendeurs.xlsx", index=False)
     return result
 
@@ -407,8 +407,8 @@ def run_query_f(db):
           "note_moyenne", "pct_retard"]]
         .reset_index(drop=True)
     )
-    print("\n--- Requête F : vendeurs à surveiller ---")
-    print(result)
+    #print("\n--- Requête F : vendeurs à surveiller ---")
+    #print(result)
     # result.to_excel("vendeurs_a_surveiller.xlsx", index=False)
     return result
 
@@ -466,8 +466,8 @@ def run_query_g(db):
     result = result[
         ["periode", "nb_commandes_livrees", "taux_livraison_heure_pct"]
     ]
-    print("\n--- Requête G : taux de livraison à l'heure ---")
-    print(result)
+    #print("\n--- Requête G : taux de livraison à l'heure ---")
+    #print(result)
     # result.to_excel("taux_livraison_heure.xlsx", index=False)
     return result
 
@@ -546,9 +546,9 @@ def run_query_h(db):
             "ratio_clients_vendeur",
         ]
     ].sort_values("state")
-    print("\n--- Requête H : clients et vendeurs par état ---")
-    print(result)
-    result.to_excel("clients_vendeurs_par_etat.xlsx", index=False)
+    #print("\n--- Requête H : clients et vendeurs par état ---")
+    #print(result)
+    #result.to_excel("clients_vendeurs_par_etat.xlsx", index=False)
     return result
 
 def run_query_i1(db):
@@ -626,8 +626,8 @@ def run_query_i1(db):
     ]
 
     result = pd.DataFrame(list(db.orders.aggregate(pipeline)))
-    print("\n--- Requête I1 : avis par tranche de retard ---")
-    print(result)
+    #print("\n--- Requête I1 : avis par tranche de retard ---")
+    #print(result)
     #result.to_excel("avis_par_tranche_retard.xlsx", index=False)
     return result
 
@@ -694,8 +694,8 @@ def run_query_i2(db):
     result = correlation.sort_values(
         "correlation_retard_note", ascending=True
     ).reset_index(drop=True)
-    print("\n--- Requête I2 : corrélation retard / note ---")
-    print(result)
+    #print("\n--- Requête I2 : corrélation retard / note ---")
+    #print(result)
     #result.to_excel("correlation_retard_note.xlsx", index=False)
     return result
 
@@ -775,8 +775,8 @@ def run_query_j(db):
             "nb_moyen_echeances",
         ]
     ].sort_values("pct_valeur", ascending=False).reset_index(drop=True)
-    print("\n--- Requête J : répartition des moyens de paiement ---")
-    print(result)
+    #print("\n--- Requête J : répartition des moyens de paiement ---")
+    #print(result)
     #result.to_excel("repartition_moyens_paiement.xlsx", index=False)
     return result
 
@@ -827,8 +827,8 @@ def run_query_k(db):
         ]
         .reset_index(drop=True)
     )
-    print("\n--- Requête K : vendeurs aux délais de traitement les plus longs ---")
-    print(result)
+    #print("\n--- Requête K : vendeurs aux délais de traitement les plus longs ---")
+    #print(result)
     #result.to_excel("delai_traitement_vendeurs.xlsx", index=False)
     return result
 
@@ -901,8 +901,8 @@ def run_query_l(db):
             "taux_recurence_pct",
         ]
     ]
-    print("\n--- Requête L : clients récurrents par état ---")
-    print(result)
+    #print("\n--- Requête L : clients récurrents par état ---")
+    #print(result)
     #result.to_excel("clients_recurrents_par_etat.xlsx", index=False)
     return result
 
@@ -987,8 +987,8 @@ def run_query_m(db):
     ]
 
     result = pd.DataFrame(list(db.orders.aggregate(pipeline)))
-    print("\n--- Requête M : rapidité de livraison par état ---")
-    print(result)
+    #print("\n--- Requête M : rapidité de livraison par état ---")
+    #print(result)
     #result.to_excel("rapidite_livraison_par_etat.xlsx", index=False)
     return result
 
@@ -1055,15 +1055,15 @@ def run_query_n(db):
             "pct_ca",
         ]
     ]
-    print("\n--- Requête N : segmentation des clients ---")
-    print(result)
+    #print("\n--- Requête N : segmentation des clients ---")
+    #print(result)
     #result.to_excel("segmentation_clients.xlsx", index=False)
     return result
 
 
 def main():
     with MongoClient("mongodb://127.0.0.1:27017/") as client:
-        db = client["SAE"]
+        db = client["olist"]
         run_query_a(db)
         run_query_b(db)
         run_query_c(db)
@@ -1083,7 +1083,7 @@ def main():
 
 if __name__ == "__main__":
   client = MongoClient("mongodb://127.0.0.1:27017/")
-  db = client["SAE"]
+  db = client["olist"]
 
   resultats_mongo = {
       "a": run_query_a(db),

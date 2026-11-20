@@ -8,7 +8,7 @@ conn = sqlite3.connect("olist.sqlite")
 
 # 2. Connexion à MongoDB
 client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
-db = client["SAE"]  # Crée la base 'SAE' dans MongoDB
+db = client["olist"] 
 
 print("Début de la migration vers les 5 collections...")
 
