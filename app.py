@@ -10,6 +10,7 @@ from pymongo import MongoClient
 import requests
 import streamlit as st
 from streamlit_folium import st_folium
+import plotly.express as px
 
 st.set_page_config(page_title="SAÉ Olist - NoSQL & Dashboard", layout="wide")
 st.title("📊 Migration NoSQL & Tableau de Bord Décisionnel — Olist")
@@ -319,17 +320,15 @@ with tab2:
     with col_g1:
       st.subheader("1. Délais moyens de livraison par État (Requête d)")
       df_d = sheets["d"]
-      fig, ax = plt.subplots(figsize=(6, 4))
-      ax.hist(
-          df_d["delai_moyen_jours"],
-          bins=10,
-          color="#2b5c8f",
-          edgecolor="white",
+      fig = px.histogram(
+          df_d,
+          x="delai_moyen_jours",
+          nbins=10,
+          title="Distribution des délais moyens par État",
+          labels={"delai_moyen_jours": "Délai moyen de livraison (jours)"},
       )
-      ax.set_xlabel("Délai moyen de livraison (jours)")
-      ax.set_ylabel("Nombre d'États")
-      ax.set_title("Distribution des délais moyens par État")
-      st.pyplot(fig)
+      fig.update_yaxes(title_text="Nombre d'États")
+      st.plotly_chart(fig, use_container_width=True)
       st.caption(
           "**Décision éclairée :** Identifier les disparités régionales de"
           " transport afin de renforcer les partenariats logistiques dans les"
@@ -340,19 +339,18 @@ with tab2:
     with col_g2:
       st.subheader("2. Évolution mensuelle du chiffre d'affaires (Requête a)")
       df_a = sheets["a"]
-      fig, ax = plt.subplots(figsize=(6, 4))
-      ax.plot(
-          df_a["mois"],
-          df_a["chiffre_affaires"],
-          marker="o",
-          color="#1f77b4",
-          linewidth=2,
+      fig = px.line(
+          df_a,
+          x="mois",
+          y="chiffre_affaires",
+          markers=True,
+          title="Tendance du CA mensuel (commandes livrées)",
+          labels={
+              "mois": "Mois",
+              "chiffre_affaires": "Chiffre d'affaires (R$)",
+          },
       )
-      ax.set_xlabel("Mois")
-      ax.set_ylabel("Chiffre d'affaires (R$)")
-      ax.set_title("Tendance du CA mensuel (commandes livrées)")
-      plt.xticks(rotation=45, ha="right")
-      st.pyplot(fig)
+      st.plotly_chart(fig, use_container_width=True)
       st.caption(
           "**Décision éclairée :** Piloter la croissance globale de la"
           " plateforme et anticiper les pics saisonniers (ex. Black Friday)"
@@ -366,15 +364,13 @@ with tab2:
     with col_g3:
       st.subheader("3. Répartition des moyens de paiement (Requête j)")
       df_j = sheets["j"]
-      fig, ax = plt.subplots(figsize=(6, 4))
-      ax.pie(
-          df_j["pct_valeur"],
-          labels=df_j["moyen_paiement"],
-          autopct="%1.1f%%",
-          startangle=140,
+      fig = px.pie(
+          df_j,
+          values="pct_valeur",
+          names="moyen_paiement",
+          title="Part de la valeur totale encaissée par moyen de paiement",
       )
-      ax.set_title("Part de la valeur totale encaissée par moyen de paiement")
-      st.pyplot(fig)
+      st.plotly_chart(fig, use_container_width=True)
       st.caption(
           "**Décision éclairée :** Adapter les facilités de paiement et"
           " négocier les commissions bancaires selon le poids dominant de la"
@@ -385,17 +381,18 @@ with tab2:
     with col_g4:
       st.subheader("4. Note moyenne selon la tranche de retard (Requête i1)")
       df_i1 = sheets["i1"]
-      fig, ax = plt.subplots(figsize=(6, 4))
-      ax.bar(
-          df_i1["tranche_retard"],
-          df_i1["note_moyenne"],
-          color=["#2ca02c", "#ffbb78", "#ff7f0e", "#d62728"],
+      fig = px.bar(
+          df_i1,
+          x="tranche_retard",
+          y="note_moyenne",
+          title="Impact du retard de livraison sur la satisfaction client",
+          labels={
+              "tranche_retard": "Tranche de retard",
+              "note_moyenne": "Note moyenne (/5)",
+          },
       )
-      ax.set_ylim(0, 5.5)
-      ax.set_ylabel("Note moyenne (/5)")
-      ax.set_title("Impact du retard de livraison sur la satisfaction client")
-      plt.xticks(rotation=20, ha="right")
-      st.pyplot(fig)
+      fig.update_yaxes(range=[0, 5.5])
+      st.plotly_chart(fig, use_container_width=True)
       st.caption(
           "**Décision éclairée :** Quantifier la chute brutale de satisfaction"
           " dès le 1er jour de retard pour prioriser les alertes proactives"
@@ -409,11 +406,18 @@ with tab2:
     with col_g5:
       st.subheader("5. Top 10 des catégories par chiffre d'affaires (Requête c)")
       df_c = sheets["c"].sort_values("chiffre_affaires", ascending=True)
-      fig, ax = plt.subplots(figsize=(6, 4))
-      ax.barh(df_c["categorie"], df_c["chiffre_affaires"], color="#4c72b0")
-      ax.set_xlabel("Chiffre d'affaires (R$)")
-      ax.set_title("Top 10 catégories anglaises")
-      st.pyplot(fig)
+      fig = px.bar(
+          df_c,
+          x="chiffre_affaires",
+          y="categorie",
+          orientation="h",
+          title="Top 10 catégories anglaises",
+          labels={
+              "chiffre_affaires": "Chiffre d'affaires (R$)",
+              "categorie": "Catégorie",
+          },
+      )
+      st.plotly_chart(fig, use_container_width=True)
       st.caption(
           "**Décision éclairée :** Concentrer les budgets marketing et"
           " l'acquisition de nouveaux vendeurs sur les catégories locomotives"
@@ -424,12 +428,17 @@ with tab2:
     with col_g6:
       st.subheader("6. Taux de clients récurrents par État (Requête l)")
       df_l = sheets["l"].head(15)
-      fig, ax = plt.subplots(figsize=(6, 4))
-      ax.bar(df_l["state"], df_l["taux_recurence_pct"], color="#55a868")
-      ax.set_xlabel("État client")
-      ax.set_ylabel("Taux de récurrence (%)")
-      ax.set_title("Top 15 États par fidélité client")
-      st.pyplot(fig)
+      fig = px.bar(
+          df_l,
+          x="state",
+          y="taux_recurence_pct",
+          title="Top 15 États par fidélité client",
+          labels={
+              "state": "État client",
+              "taux_recurence_pct": "Taux de récurrence (%)",
+          },
+      )
+      st.plotly_chart(fig, use_container_width=True)
       st.caption(
           "**Décision éclairée :** Orienter les campagnes de fidélisation et de"
           " relance CRM dans les États où le rachat reste faible."
