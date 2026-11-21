@@ -1,8 +1,11 @@
 @echo off
+cd /d "%~dp0"
+
 python -m venv .venv
 call .venv\Scripts\activate.bat
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-echo Environnement pret ! Lance ensuite : streamlit run app.py
+echo Lancement de l'application Streamlit...
+streamlit run app.py
 pause
