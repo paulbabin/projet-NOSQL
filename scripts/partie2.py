@@ -2,9 +2,14 @@ import pandas as pd
 import pymongo
 import sqlite3
 from uuid import uuid4
+from pathlib import Path
 
 # 1. Connexion à la base SQLite
-conn = sqlite3.connect("olist.sqlite")
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = BASE_DIR / "data" / "olist.sqlite"
+
+# Creation de la connexion
+conn = sqlite3.connect(DB_PATH)
 
 # 2. Connexion à MongoDB
 client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")

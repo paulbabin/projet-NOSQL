@@ -1,7 +1,14 @@
 import pandas as pd
 
-sql_sheets = pd.read_excel("resultats_sql.xlsx", sheet_name=None)
-mongo_sheets = pd.read_excel("resultats_mongodb.xlsx", sheet_name=None)
+from pathlib import Path
+import subprocess
+import sys
+
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "./../output"
+
+sql_sheets = pd.read_excel(OUTPUT_DIR /"resultats_sql.xlsx", sheet_name=None)
+mongo_sheets = pd.read_excel(OUTPUT_DIR /"resultats_mongodb.xlsx", sheet_name=None)
 
 print("🔍 Début de la vérification de la migration...\n")
 

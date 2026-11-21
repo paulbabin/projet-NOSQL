@@ -4,9 +4,13 @@
 
 import sqlite3
 import pandas as pd
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = BASE_DIR / "data" / "olist.sqlite"
 
 # Creation de la connexion
-conn = sqlite3.connect("olist.sqlite")
+conn = sqlite3.connect(DB_PATH)
 
 
 #%% Requete a - Directeur general
@@ -390,8 +394,17 @@ resultats = {
     "n": df_n,
 }
 
+
+
+# Racine du projet 
+BASE_DIR = Path(__file__).resolve().parent.parent
+OUTPUT_DIR = BASE_DIR / "output"
+
+# Crée le dossier output/ s'il n'existe pas encore
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 # 2. Écrit toutes les feuilles dans un seul fichier .xlsx
-nom_fichier = "resultats_sql.xlsx"  
+nom_fichier = OUTPUT_DIR / "resultats_sql.xlsx"
+
 
 with pd.ExcelWriter(nom_fichier, engine="openpyxl") as writer:
   for sheet_name, df in resultats.items():

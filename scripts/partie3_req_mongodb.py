@@ -1,5 +1,6 @@
 import pandas as pd
 from pymongo import MongoClient
+from pathlib import Path
 
 
 def run_query_a(db):
@@ -1081,7 +1082,13 @@ def main():
         run_query_n(db)
 
 
+
 if __name__ == "__main__":
+  # Racine du projet = dossier parent de scripts/
+  base_dir = Path(__file__).resolve().parent.parent
+  output_dir = base_dir / "output"
+  output_dir.mkdir(parents=True, exist_ok=True)
+
   client = MongoClient("mongodb://127.0.0.1:27017/")
   db = client["olist"]
 
@@ -1100,11 +1107,13 @@ if __name__ == "__main__":
       "k": run_query_k(db),
       "l": run_query_l(db),
       "m": run_query_m(db),
-      "n": run_query_n(db), 
+      "n": run_query_n(db),
   }
 
-  with pd.ExcelWriter("resultats_mongodb.xlsx", engine="openpyxl") as writer:
+  fichier_excel = output_dir / "resultats_mongodb.xlsx"
+  with pd.ExcelWriter(fichier_excel, engine="openpyxl") as writer:
     for nom_feuille, df in resultats_mongo.items():
-      df.to_excel(writer, sheet_name=nom_feuille[:31], index=False)
+      df.to_excel(writer, sheet_name=str(nom_feuille)[:31], index=False)
 
   client.close()
+  print(f"✅ Fichier généré : {fichier_excel}")

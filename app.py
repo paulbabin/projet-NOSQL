@@ -11,6 +11,11 @@ import requests
 import streamlit as st
 from streamlit_folium import st_folium
 import plotly.express as px
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+SCRIPTS_DIR = BASE_DIR / "scripts"
+OUTPUT_DIR = BASE_DIR / "output"
 
 st.set_page_config(page_title="SAÉ Olist - NoSQL & Dashboard", layout="wide")
 st.title("📊 Migration NoSQL & Tableau de Bord Décisionnel — Olist")
@@ -236,10 +241,10 @@ with tab1:
 
   if st.button("🚀 Lancer tout le pipeline (Parties 1, 2, 3 + Comparaison)"):
     scripts = [
-        "partie1_req_SQL.py",
-        "partie2.py",
-        "partie3_req_mongodb.py",
-        "comparaison.py",
+        SCRIPTS_DIR / "partie1_req_SQL.py",
+        SCRIPTS_DIR / "partie2.py",
+        SCRIPTS_DIR / "partie3_req_mongodb.py",
+        SCRIPTS_DIR / "comparaison.py",
     ]
     succes_global = True
 
@@ -247,21 +252,24 @@ with tab1:
         "Exécution en cours (SQLite → Migration MongoDB → Requêtes MongoDB →"
         " Comparaison)... Merci de patienter."
     ):
-      for script in scripts:
-        if not os.path.exists(script):
-          st.error(f"Fichier introuvable : `{script}`")
-          succes_global = False
-          break
+      for script_path in scripts:
+        if not script_path.exists():
+            st.error(f"Fichier introuvable : `{script_path}`")
+            succes_global = False
+            break
 
         res = subprocess.run(
-            [sys.executable, script], capture_output=True, text=True
+            [sys.executable, str(script_path)],
+            cwd=BASE_DIR,  # Garde la racine comme dossier de travail
+            capture_output=True,
+            text=True,
         )
         if res.returncode != 0:
-          st.error(f"❌ Erreur lors de l'exécution de `{script}` :")
+          st.error(f"❌ Erreur lors de l'exécution de `{script_path.name}` :")
           st.code(res.stderr)
           succes_global = False
           break
-        elif script == "comparaison.py":
+        elif script_path.name == "comparaison.py":
           st.session_state["logs_comparaison"] = res.stdout
 
     if succes_global:
@@ -274,8 +282,8 @@ with tab1:
 
   st.divider()
   st.subheader("👀 Aperçu visuel côte à côte des fichiers Excel générés")
-  sql_sheets = load_excel_sheets("resultats_sql.xlsx")
-  mongo_sheets = load_excel_sheets("resultats_mongodb.xlsx")
+  sql_sheets = load_excel_sheets(OUTPUT_DIR / "resultats_sql.xlsx")
+  mongo_sheets = load_excel_sheets(OUTPUT_DIR / "resultats_mongodb.xlsx")
 
   if sql_sheets and mongo_sheets:
     feuille = st.selectbox(
@@ -304,8 +312,8 @@ with tab1:
 # ==============================================================================
 with tab2:
   st.header("Indicateurs clés pour les décideurs Olist")
-  sheets = load_excel_sheets("resultats_mongodb.xlsx") or load_excel_sheets(
-      "resultats_sql.xlsx"
+  sheets = load_excel_sheets(str(OUTPUT_DIR /"resultats_mongodb.xlsx")) or load_excel_sheets(
+      str(OUTPUT_DIR /"resultats_sql.xlsx")
   )
 
   if not sheets:
@@ -450,9 +458,9 @@ with tab2:
 # ==============================================================================
 with tab3:
   st.header("Cartographie interactive du réseau Olist")
-  sheets = load_excel_sheets("resultats_mongodb.xlsx") or load_excel_sheets(
-      "resultats_sql.xlsx"
-  )
+  sheets = load_excel_sheets(str(OUTPUT_DIR /"resultats_mongodb.xlsx")) or load_excel_sheets(
+        str(OUTPUT_DIR /"resultats_sql.xlsx")
+    )
 
   try:
     df_ops, sellers_geo = load_mongo_operational_data()
