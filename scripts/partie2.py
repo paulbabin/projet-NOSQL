@@ -108,38 +108,11 @@ db.orders.insert_many(orders_list)
 # COLLECTION 5 : geolocation
 # ==========================================
 
-if "geolocation" not in db.list_collection_names():
-    print("Migration de la collection 'geolocation'...")
-    conn.execute("BEGIN")
-    expected = conn.execute("SELECT COUNT(*) FROM geolocation").fetchone()[0]
-    if not expected:
-        raise RuntimeError("La table SQLite geolocation est vide.")
+print("Migration de la collection 'geolocation'...")
+geolocation_df = pd.read_sql_query("SELECT * FROM geolocation", conn)
 
-    rows = conn.execute(
-            "SELECT geolocation_zip_code_prefix, geolocation_lat, geolocation_lng, "
-            "geolocation_city, geolocation_state FROM geolocation"
-    )
-    columns = [column[0] for column in rows.description]
-    staging = db.create_collection("geolocation_import_" + uuid4().hex)
-    published = False
-    try:
-        inserted = 0
-        while True:
-            batch = rows.fetchmany(5000)
-            if not batch:
-                break
-            staging.insert_many([dict(zip(columns, row)) for row in batch])
-            inserted += len(batch)
-
-        if inserted != expected or staging.count_documents({}) != expected:
-            raise RuntimeError("Le nombre de documents importés ne correspond pas à SQLite.")
-        staging.rename("geolocation")
-        published = True
-    finally:
-        if not published:
-            staging.drop()
-else:
-    print("Collection 'geolocation' déjà présente, import ignoré.")
+db.geolocation.drop()
+db.geolocation.insert_many(geolocation_df.to_dict(orient="records"))
 
 # Fermeture de la connexion SQLite
 conn.close()
