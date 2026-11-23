@@ -34,6 +34,11 @@ print("\n--- Requete a ---")
 print(df_a)
 print("Commentaire a : Le CA et le nombre de commandes livrees augmentent fortement en 2017 avec un pic en novembre (1,15M R$ pour le Black Friday) avant de se stabiliser autour de 1M R$ par mois en 2018.")
 
+#%% Requete b - Directeur commercial 
+# Question : Panier moyen (somme des paiements par commande) par État du client 
+# Commentaire : On constate des différences importantes entre les clients. Le client PB possède le panier moyen le plus élevé avec 264,08, suivi de AC (242,97) et RO (240,58). À l'inverse, le client SP affiche le panier moyen le plus faible avec 143,69.
+
+
 req_b = """
 SELECT 
     c.customer_state,
@@ -75,6 +80,10 @@ print("\n--- Requete c ---")
 print(df_c)
 print("Commentaire c : Les ventes sont concentrees sur quelques categories phares puisque le top 5 represente pres de 40 % du CA total.")
 
+#%% Requete d - Directeur logistique 
+# Question : Délai moyen de livraison (achat → livraison client, en jours) et taux de livraisons en retard (livré après la date estimée) par État du client 
+# Commentaire : On constate que le client RR possède le délai moyen le plus élevé avec 29,39, accompagné d'un taux de retard de 12,2 %. Il est suivi par AP (27,19) et AM (26,43).
+
 req_d = """
 SELECT 
     c.customer_state,
@@ -114,6 +123,10 @@ df_e = pd.read_sql_query(req_e, conn)
 print("\n--- Requete e ---")
 print(df_e)
 print("Commentaire e : Les 10 plus gros vendeurs depassent chacun 160 000 R$ de CA avec de bonnes notes (> 4/5), sauf le 2e vendeur (7c67e...) qui a une note moyenne faible de 3,35 malgre 241 374 R$ de ventes.")
+
+#%% Requete f - Responsable qualité vendeurs 
+# Question : Liste des vendeurs ayant vendu au moins 30 articles, mal notés (note moyenne < 3,5) alors qu'ils livrent à l'heure (moins de 5 % de retards). Ajuster les seuils si le résultat est vide ou trop long 
+# Commentaire : On constate que le vendeur 95f83f512... (MG) possède le taux de retard le plus élevé avec 4,62 %, accompagné d'une note moyenne de 3,18. Il est suivi par 710e3548... (PR) avec 4,38 % et e7d5b006... (SP) avec 3,17 %. À l'inverse, bb135bac... (SP) affiche 0 % de retard mais enregistre la note la plus faible du groupe avec 2,66.
 
 req_f = """SELECT 
     s.seller_id,
@@ -173,6 +186,10 @@ df_g = pd.read_sql_query(req_g, conn)
 print("\n--- Requete g ---")
 print(df_g)
 print("Commentaire g : Le taux de livraison a l'heure est bon au global (91,9 %), mais chute fortement lors des pics d'activite comme en novembre 2017 (85,7 %) et en fevrier-mars 2018 (78,6 %).")
+
+#%% Requete h - Directeur de l'expansion
+# Question : Nombre de clients, de vendeurs et ratio clients/vendeur par État, avec les coordonnées moyennes (centroïde) de l'État calculées à partir de geolocation 
+# Commentaire : On constate que l'État PA affiche le ratio clients/vendeur le plus élevé avec 975 (pour 1 seul vendeur), suivi par MA (747) et PI (495). À l'inverse, les États les plus denses comme SP (41 746 clients pour 1 849 vendeurs) et PR (5 045 clients pour 349 vendeurs) présentent des ratios nettement plus faibles, respectivement de 22,58 et 14,46, tandis que AL, AP, RR et TO ne comptent aucun vendeur.
 
 req_h = """
 SELECT 
@@ -247,6 +264,9 @@ print("\n--- Requete i (Correlation par Etat) ---")
 print(df_i2)
 print("Commentaire i : La note moyenne chute fortement des que le retard depasse 3 jours (de 4,29 a l'heure a 2,32 entre 4 et 7 jours, puis 1,73 au-dela), avec une correlation negative marquee dans presque tous les Etats.")
 
+#%% Requete j - Directeur financier 
+# Question : Répartition des moyens de paiement (% des commandes et % de la valeur) et nombre moyen d'échéances par moyen de paiement
+# Commentaire : On constate que la carte de crédit (credit_card) domine largement les transactions en représentant 76,94 % des commandes (76 505) et 78,34 % de la valeur totale, avec une moyenne de 3,51 échéances de paiement. Elle est suivie par le boleto qui totalise 19,90 % des commandes (17,92 % de la valeur), tandis que les bons d'achat (voucher, 3,89 %) et la carte de débit (debit_card, 1,54 %) restent minoritaires avec un paiement en 1 seule échéance.
 
 req_j = """
 SELECT 
@@ -289,7 +309,9 @@ print("\n--- Requete k ---")
 print(df_k)
 print("Commentaire k : Les 10 vendeurs reguliers les plus lents mettent entre 11,4 et 18,1 jours rien que pour remettre le colis au transporteur, ce qui penalise directement les delais de livraison.")
 
-
+#%% Requete l - Directeur marketing 
+# Question : Taux de clients récurrents (customer_unique_id ayant passé au moins 2 commandes) par État 
+# Commentaire : On constate que l'État AC affiche le taux de récurrence le plus élevé avec 10,39 % (8 clients récurrents sur 77), suivi par RO (10 %) et RJ (7,24 %, avec 897 clients récurrents sur 12 384). À l'inverse, AP (2,99 %), CE (3,58 %) et RR (4,44 %) enregistrent les taux les plus faibles, tandis que SP concentre le plus grand volume absolu avec 2 757 clients récurrents (soit 6,84 %).
 req_l = """
 SELECT 
     c.customer_state AS state,
@@ -341,6 +363,11 @@ df_m = pd.read_sql_query(req_m, conn)
 print("\n--- Requete m ---")
 print(df_m)
 print("Commentaire m : Les livraisons rapides (< 8 jours) obtiennent de tres bonnes notes (> 4,3/5), mais dans la plupart des Etats hors Sao Paulo les livraisons lentes (> 15 jours) sont majoritaires et tirent la satisfaction vers le bas.")
+
+#%% Requete n - Au choix 
+# Question : Trouver une autre requête utilisant un CASE WHEN qui ait du sens dans ce contexte (pistes : segmentation des clients par dépense, poids des frais de port dans le prix, gamme de prix des produits…) et expliquer la décision qu'elle éclaire 
+#Ce que fait la requête : Cette requête segmente les clients en trois catégories (VIP, Standard, Occasionnel) selon leur dépense totale, puis calcule pour chaque segment le nombre de clients et le chiffre d’affaires généré, avec leur poids relatif, afin d’identifier quels clients contribuent le plus aux revenus.
+# Commentaire : On constate que les clients occasionnels (3. Occasionnel) représentent la grande majorité de la base avec 78,41 % des effectifs (75 346 clients) et génèrent 44,27 % du chiffre d'affaires total. À l'inverse, le segment 1. VIP ne regroupe que 4,67 % des clients (4 489), mais concentre à lui seul 26,08 % du chiffre d'affaires, tandis que le segment 2. Standard représente 16,92 % des clients pour 29,65 % du CA
 
 req_n = """
 WITH depenses_clients AS (
