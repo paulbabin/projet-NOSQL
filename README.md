@@ -4,7 +4,7 @@ Projet Migration de données vers un environnement NoSQL
 Pour run le projet 
 Pré-requis : avoir compass et python 3.12 minimum
 
-Option 1 : lancer le setup.bat (windows) ou setup.sh (linux/macos)
+Option 1 : lancer le setup.bat (windows) ou setup.sh (linux/macos) puis se connecter depuis le terminal. Le premier chargement de streamlit peut etre un peu long (quelques secondes / minute).
 
 Option 2 (si probleme avec lanceur)
 - il faut pip les biblio de requirements.txt
