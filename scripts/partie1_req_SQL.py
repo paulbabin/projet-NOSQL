@@ -32,7 +32,6 @@ df_a = pd.read_sql_query(req_a, conn)
 #df_a.to_csv("requete_a.csv", index=False)
 print("\n--- Requete a ---")
 print(df_a)
-print("Commentaire a : Le CA et le nombre de commandes livrees augmentent fortement en 2017 avec un pic en novembre (1,15M R$ pour le Black Friday) avant de se stabiliser autour de 1M R$ par mois en 2018.")
 
 #%% Requete b - Directeur commercial 
 # Question : Panier moyen (somme des paiements par commande) par État du client 
@@ -55,7 +54,7 @@ ORDER BY panier_moyen DESC;
 """
 df_b = pd.read_sql_query(req_b, conn)
 #df_b.to_csv("req_b.csv", index=False)
-print("\n--- Panier moyen ---")
+print("\n--- Requete b ---")
 print(df_b)
 
 #%% Requete c - Directeur commercial
@@ -78,7 +77,6 @@ df_c = pd.read_sql_query(req_c, conn)
 #df_c.to_csv("requete_c.csv", index=False)
 print("\n--- Requete c ---")
 print(df_c)
-print("Commentaire c : Les ventes sont concentrees sur quelques categories phares puisque le top 5 represente pres de 40 % du CA total.")
 
 #%% Requete d - Directeur logistique 
 # Question : Délai moyen de livraison (achat → livraison client, en jours) et taux de livraisons en retard (livré après la date estimée) par État du client 
@@ -99,7 +97,7 @@ ORDER BY delai_moyen_jours DESC;
 """
 df_d = pd.read_sql_query(req_d, conn)
 #df_d.to_csv("req_d.csv", index=False)
-print("\n--- Délai moyen et taux de retard ---")
+print("\n--- Requete d ---")
 print(df_d)
 
 #%% Requete e - Responsable marketplace
@@ -122,7 +120,6 @@ df_e = pd.read_sql_query(req_e, conn)
 #df_e.to_csv("requete_e.csv", index=False)
 print("\n--- Requete e ---")
 print(df_e)
-print("Commentaire e : Les 10 plus gros vendeurs depassent chacun 160 000 R$ de CA avec de bonnes notes (> 4/5), sauf le 2e vendeur (7c67e...) qui a une note moyenne faible de 3,35 malgre 241 374 R$ de ventes.")
 
 #%% Requete f - Responsable qualité vendeurs 
 # Question : Liste des vendeurs ayant vendu au moins 30 articles, mal notés (note moyenne < 3,5) alors qu'ils livrent à l'heure (moins de 5 % de retards). Ajuster les seuils si le résultat est vide ou trop long 
@@ -157,7 +154,8 @@ ORDER BY s.seller_state, s.seller_city;"""
 
 df_f = pd.read_sql_query(req_f, conn)
 #df_f.to_csv("req_f.csv", index=False)
-
+print("\n--- Requete f ---")
+print(df_f)
 
 #%% Requete g - Directeur logistique
 # Question : Taux de livraison a l'heure global (commandes livrees avant la date estimee / commandes livrees), puis par mois d'achat
@@ -185,7 +183,6 @@ df_g = pd.read_sql_query(req_g, conn)
 #df_g.to_csv("requete_g.csv", index=False)
 print("\n--- Requete g ---")
 print(df_g)
-print("Commentaire g : Le taux de livraison a l'heure est bon au global (91,9 %), mais chute fortement lors des pics d'activite comme en novembre 2017 (85,7 %) et en fevrier-mars 2018 (78,6 %).")
 
 #%% Requete h - Directeur de l'expansion
 # Question : Nombre de clients, de vendeurs et ratio clients/vendeur par État, avec les coordonnées moyennes (centroïde) de l'État calculées à partir de geolocation 
@@ -212,7 +209,7 @@ ORDER BY t.state;
 """
 df_h = pd.read_sql_query(req_h, conn)
 #df_h.to_csv("req_h.csv", index=False)
-print("\n--- Clients et vendeurs par état ---")
+print("\n--- Requete h ---")
 print(df_h)
 
 
@@ -239,7 +236,7 @@ ORDER BY tranche_retard ASC;
 """
 df_i1 = pd.read_sql_query(req_i1, conn)
 #df_i1.to_csv("requete_i_tranches.csv", index=False)
-print("\n--- Requete i (Tranches de retard) ---")
+print("\n--- Requete i1 ---")
 print(df_i1)
 
 req_i2 = """
@@ -260,9 +257,9 @@ df_i2 = df_i2_commandes.groupby("etat")["jours_retard"].corr(df_i2_commandes["no
 df_i2["correlation_retard_note"] = df_i2["correlation_retard_note"].round(3)
 df_i2 = df_i2.sort_values(by="correlation_retard_note", ascending=True)
 #df_i2.to_csv("requete_i_correlation.csv", index=False)
-print("\n--- Requete i (Correlation par Etat) ---")
+print("\n--- Requete i2 ---")
 print(df_i2)
-print("Commentaire i : La note moyenne chute fortement des que le retard depasse 3 jours (de 4,29 a l'heure a 2,32 entre 4 et 7 jours, puis 1,73 au-dela), avec une correlation negative marquee dans presque tous les Etats.")
+
 
 #%% Requete j - Directeur financier 
 # Question : Répartition des moyens de paiement (% des commandes et % de la valeur) et nombre moyen d'échéances par moyen de paiement
@@ -283,7 +280,7 @@ ORDER BY pct_valeur DESC;
 """
 df_j = pd.read_sql_query(req_j, conn)
 #df_j.to_csv("req_j.csv", index=False)
-print("\n--- repartition_moyenne_paiement  ---")
+print("\n--- Requete j  ---")
 print(df_j)
 
 #%% Requete k - Responsable vendeurs
@@ -307,7 +304,6 @@ df_k = pd.read_sql_query(req_k, conn)
 #df_k.to_csv("requete_k.csv", index=False)
 print("\n--- Requete k ---")
 print(df_k)
-print("Commentaire k : Les 10 vendeurs reguliers les plus lents mettent entre 11,4 et 18,1 jours rien que pour remettre le colis au transporteur, ce qui penalise directement les delais de livraison.")
 
 #%% Requete l - Directeur marketing 
 # Question : Taux de clients récurrents (customer_unique_id ayant passé au moins 2 commandes) par État 
@@ -333,7 +329,7 @@ ORDER BY taux_recurence_pct DESC;
 """
 df_l = pd.read_sql_query(req_l, conn)
 #df_l.to_csv("req_l.csv", index=False)
-print("\n--- Taux de clients récurrents par état ---")
+print("\n--- Requete l ---")
 print(df_l)
 
 #%% Requete m - Directeur logistique
@@ -362,7 +358,6 @@ df_m = pd.read_sql_query(req_m, conn)
 #df_m.to_csv("requete_m.csv", index=False)
 print("\n--- Requete m ---")
 print(df_m)
-print("Commentaire m : Les livraisons rapides (< 8 jours) obtiennent de tres bonnes notes (> 4,3/5), mais dans la plupart des Etats hors Sao Paulo les livraisons lentes (> 15 jours) sont majoritaires et tirent la satisfaction vers le bas.")
 
 #%% Requete n - Au choix 
 # Question : Trouver une autre requête utilisant un CASE WHEN qui ait du sens dans ce contexte (pistes : segmentation des clients par dépense, poids des frais de port dans le prix, gamme de prix des produits…) et expliquer la décision qu'elle éclaire 
@@ -396,7 +391,7 @@ ORDER BY segment_client;
 """
 df_n = pd.read_sql_query(req_n, conn)
 #df_n.to_csv("req_n.csv", index=False)
-print("\n--- Segmentation des clients ---")
+print("\n--- Requete n ---")
 print(df_n)
 
 """"""
